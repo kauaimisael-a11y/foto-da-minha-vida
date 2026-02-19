@@ -23,9 +23,7 @@ app.post('/login', (req, res) => {
     res.status(401).json({ msg: "Usuário ou senha incorretos!" });
 });
 
-// AJUSTE DA PORTA: Isso é obrigatório para o Render/Railway funcionar
-const PORT = process.env.PORT || 3000; 
-
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
