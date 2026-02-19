@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria Privada - Login</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            min-height: 100vh; 
+        }
+
+        .login-card { 
+            background: #2a2a2a; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            width: 300px; 
+            text-align: center;
+        }
+        input { 
+            width: 100%; padding: 10px; margin: 10px 0; 
+            border-radius: 5px; border: none; box-sizing: border-box; 
+            background: #333; color: white;
+        }
+        button { 
+            width: 100%; padding: 12px; background: #007bff; 
+            border: none; color: white; font-weight: bold; 
+            border-radius: 5px; cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        #mensagem { margin-top: 15px; font-size: 0.9em; min-height: 1.2em; }
+
+      
+        #areaPrivada { 
+            display: none; 
+            width: 100%; 
+            max-width: 1200px; 
+            padding: 20px;
+        }
+        .galeria {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .foto-card {
+            background: #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .foto-card:hover { transform: scale(1.03); }
+        .foto-card img { width: 100%; height: 200px; object-fit: cover; }
+        .legenda { padding: 10px; text-align: center; color: #bbb; }
+        
+        .btn-sair { 
+            background: #dc3545; width: 100px; margin-bottom: 20px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="telaLogin" class="login-card">
+        <h2>Área Restrita</h2>
+        <input type="text" id="usuario" placeholder="Usuário">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="tentarLogin()">Entrar</button>
+        <div id="mensagem"></div>
+    </div>
+
+    <div id="areaPrivada">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Sua Galeria 📸</h1>
+            <button class="btn-sair" onclick="logout()">Sair</button>
+        </div>
+
+        <div class="galeria">
+            <div class="foto-card">
+                <img src="https://picsum.photos/id/1011/400/300" alt="Foto 1">
+                <div class="legenda">Viagem 01</div>
+            </div>
+            <div class="foto-card">
+                <img src="https://picsum.photos/id/1015/400/300" alt="Foto 2">
+                <div class="legenda">Natureza</div>
+            </div>
+            <div class="foto-card">
+                <img src="https://picsum.photos/id/1019/400/300" alt="Foto 3">
+                <div class="legenda">Cidade</div>
+            </div>
+            <div class="foto-card">
+                <img src="https://picsum.photos/id/1025/400/300" alt="Foto 4">
+                <div class="legenda">Aventura</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function tentarLogin() {
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+            const mensagem = document.getElementById('mensagem');
+            const telaLogin = document.getElementById('telaLogin');
+            const areaPrivada = document.getElementById('areaPrivada');
+
+            try {
+                
+                const resposta = await fetch('http://127.0.0.1:3000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha })
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    mensagem.style.color = "#28a745";
+                    mensagem.innerText = "Acesso permitido!";
+                    
+                  
+                    setTimeout(() => {
+                        telaLogin.style.display = "none"; 
+                        areaPrivada.style.display = "block"; 
+                        document.body.style.justifyContent = "flex-start"; 
+                    }, 800);
+                } else {
+                    mensagem.style.color = "#dc3545";
+                    mensagem.innerText = dados.msg || "Erro no login";
+                }
+            } catch (erro) {
+                mensagem.style.color = "#dc3545";
+                mensagem.innerText = "Servidor offline!";
+                console.error(erro);
+            }
+        }
+
+        function logout() {
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>
