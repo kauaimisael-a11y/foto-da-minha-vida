@@ -3,49 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Pro - Spotify Style</title>
+    <title>Galeria Segura v2</title>
     <style>
+        /* Estilos mantidos conforme sua preferência (Spotify Style) */
         :root { --fundo: #000; --card: #121212; --verde: #1DB954; --texto-sec: #b3b3b3; --gradiente: #282828; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--fundo); color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-
-        /* LOGIN */
         #telaLogin { width: 100%; display: flex; justify-content: center; align-items: center; background: var(--fundo); position: absolute; z-index: 100; height: 100vh; }
         .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 300px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box; }
         .btn-entrar { width: 100%; padding: 14px; background: var(--verde); border: none; font-weight: bold; border-radius: 50px; cursor: pointer; }
-
-        /* LAYOUT PRINCIPAL */
-        #areaPrivada { display: none; width: 100%; display: flex; flex-direction: row; }
-
-        /* BARRA LATERAL (SIDEBAR) */
+        #areaPrivada { display: none; width: 100%; flex-direction: row; }
         .sidebar { width: 240px; background: var(--fundo); display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #282828; }
         .nav-item { padding: 12px; color: var(--texto-sec); cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
         .nav-item:hover { color: white; background: #1a1a1a; }
-        .folders { margin-top: 20px; border-top: 1px solid #282828; padding-top: 20px; }
-
-        /* CONTEÚDO PRINCIPAL */
-        .main-content { flex: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, var(--gradiente), var(--fundo) 40%); }
-        
+        .main-content { flex: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, var(--gradiente), var(--fundo) 60%); }
         .destaque { text-align: center; padding: 40px 0; }
         #fotoPrincipal { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-
         .lista-vertical { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
         .item-lista { display: flex; align-items: center; padding: 8px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
         .item-lista:hover { background: rgba(255,255,255,0.1); }
         .item-lista img { width: 50px; height: 50px; border-radius: 4px; margin-right: 15px; }
-        
-        #mensagem { color: #ffc107; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="telaLogin">
         <div class="login-card">
-            <h2>Fazer Login</h2>
+            <h2>Área Privada</h2>
             <input type="text" id="usuario" placeholder="Usuário">
             <input type="password" id="senha" placeholder="Senha">
             <button class="btn-entrar" id="btnEntrar" onclick="tentarLogin()">ENTRAR</button>
-            <div id="mensagem"></div>
+            <p id="msgErro" style="color: #ff5555; font-size: 12px; margin-top: 10px;"></p>
         </div>
     </div>
 
@@ -53,33 +41,45 @@
         <div class="sidebar">
             <div class="nav-item">🏠 Início</div>
             <div class="nav-item">⚙️ Configurações</div>
-            <div class="folders" id="listaPastas">
-                <small style="color: grey; padding-left: 10px;">SUAS PASTAS</small>
-                </div>
+            <div id="listaPastas"></div>
             <div class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff5555;">🚪 Sair</div>
         </div>
-
         <div class="main-content">
             <div class="destaque">
                 <img src="" id="fotoPrincipal">
                 <h1 id="tituloPrincipal">Carregando...</h1>
             </div>
-
-            <div class="lista-vertical" id="listaFotos">
-                </div>
+            <div class="lista-vertical" id="listaFotos"></div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÕES GLOBAIS
-        const API_URL = 'https://foto-da-minha-vida.onrender.com/login';
+        const BASE_URL = 'https://foto-da-minha-vida.onrender.com';
 
-        window.onload = () => {
-            const dadosSalvos = localStorage.getItem('dados_galeria');
-            if (dadosSalvos) renderizarPagina(JSON.parse(dadosSalvos));
+        // AO CARREGAR: Verifica segurança com o servidor
+        window.onload = async () => {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/verificar-sessao`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const dados = await res.json();
+
+                if (res.ok) {
+                    renderizarPagina(dados.dados);
+                } else {
+                    logout(); // Token inválido no servidor
+                }
+            } catch (e) {
+                console.log("Servidor offline ou erro de rede.");
+            }
         };
 
-        // ENTER NO TECLADO
+        // LOGIN COM ENTER
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && document.getElementById('telaLogin').style.display !== 'none') tentarLogin();
         });
@@ -88,12 +88,13 @@
             const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
             const btn = document.getElementById('btnEntrar');
-            
-            btn.innerText = "CONECTANDO...";
+            const erro = document.getElementById('msgErro');
+
             btn.disabled = true;
+            btn.innerText = "VALIDANDO...";
 
             try {
-                const res = await fetch(API_URL, {
+                const res = await fetch(`${BASE_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario, senha })
@@ -101,15 +102,15 @@
                 const dados = await res.json();
 
                 if (res.ok) {
-                    localStorage.setItem('dados_galeria', JSON.stringify(dados.dados));
+                    localStorage.setItem('auth_token', dados.token);
                     renderizarPagina(dados.dados);
                 } else {
-                    alert(dados.msg);
+                    erro.innerText = dados.msg;
                     btn.disabled = false;
                     btn.innerText = "ENTRAR";
                 }
             } catch (e) {
-                alert("Erro ao conectar com servidor.");
+                erro.innerText = "Erro ao conectar com servidor.";
                 btn.disabled = false;
                 btn.innerText = "TENTAR NOVAMENTE";
             }
@@ -119,8 +120,9 @@
             document.getElementById('telaLogin').style.display = 'none';
             document.getElementById('areaPrivada').style.display = 'flex';
 
-            // Renderizar Pastas
+            // Pastas
             const containerPastas = document.getElementById('listaPastas');
+            containerPastas.innerHTML = '<small style="color: grey; padding-left: 10px;">PASTAS</small>';
             dados.pastas.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'nav-item';
@@ -128,19 +130,15 @@
                 containerPastas.appendChild(div);
             });
 
-            // Renderizar Fotos
+            // Fotos
             const containerFotos = document.getElementById('listaFotos');
             containerFotos.innerHTML = "";
             dados.fotos.forEach((f, index) => {
                 if(index === 0) mudarDestaque(f.url, f.titulo, f.cor);
-                
                 const item = document.createElement('div');
                 item.className = 'item-lista';
                 item.onclick = () => mudarDestaque(f.url, f.titulo, f.cor);
-                item.innerHTML = `
-                    <img src="${f.url}">
-                    <div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>
-                `;
+                item.innerHTML = `<img src="${f.url}"><div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>`;
                 containerFotos.appendChild(item);
             });
         }
@@ -151,7 +149,15 @@
             document.documentElement.style.setProperty('--gradiente', cor);
         }
 
-        function logout() {
+        async function logout() {
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                await fetch(`${BASE_URL}/logout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+            }
             localStorage.clear();
             location.reload();
         }
