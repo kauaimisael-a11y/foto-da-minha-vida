@@ -5,27 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galeria Segura v2</title>
     <style>
-        /* Estilos mantidos conforme sua preferência (Spotify Style) */
         :root { --fundo: #000; --card: #121212; --verde: #1DB954; --texto-sec: #b3b3b3; --gradiente: #282828; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--fundo); color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Modal de Zoom */
+        #modalZoom { display: none; position: fixed; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; cursor: zoom-out; }
+        #imgExpandida { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.3s; }
+
         #telaLogin { width: 100%; display: flex; justify-content: center; align-items: center; background: var(--fundo); position: absolute; z-index: 100; height: 100vh; }
         .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 300px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box; }
         .btn-entrar { width: 100%; padding: 14px; background: var(--verde); border: none; font-weight: bold; border-radius: 50px; cursor: pointer; }
+        
         #areaPrivada { display: none; width: 100%; flex-direction: row; }
         .sidebar { width: 240px; background: var(--fundo); display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #282828; }
         .nav-item { padding: 12px; color: var(--texto-sec); cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover { color: white; background: #1a1a1a; }
+        .nav-item:hover, .nav-item.active { color: white; background: #1a1a1a; }
+        
         .main-content { flex: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, var(--gradiente), var(--fundo) 60%); }
         .destaque { text-align: center; padding: 40px 0; }
-        #fotoPrincipal { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        #fotoPrincipal { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); cursor: pointer; transition: 0.3s; }
+        #fotoPrincipal:hover { transform: scale(1.02); }
+        
         .lista-vertical { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
         .item-lista { display: flex; align-items: center; padding: 8px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
         .item-lista:hover { background: rgba(255,255,255,0.1); }
-        .item-lista img { width: 50px; height: 50px; border-radius: 4px; margin-right: 15px; }
+        .item-lista img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
     </style>
 </head>
 <body>
+
+    <div id="modalZoom" onclick="this.style.display='none'">
+        <img src="" id="imgExpandida">
+    </div>
 
     <div id="telaLogin">
         <div class="login-card">
@@ -39,14 +51,13 @@
 
     <div id="areaPrivada">
         <div class="sidebar">
-            <div class="nav-item">🏠 Início</div>
-            <div class="nav-item">⚙️ Configurações</div>
+            <div class="nav-item" onclick="filtrarFotos(null)">🏠 Início</div>
             <div id="listaPastas"></div>
             <div class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff5555;">🚪 Sair</div>
         </div>
         <div class="main-content">
             <div class="destaque">
-                <img src="" id="fotoPrincipal">
+                <img src="" id="fotoPrincipal" onclick="abrirZoom(this.src)">
                 <h1 id="tituloPrincipal">Carregando...</h1>
             </div>
             <div class="lista-vertical" id="listaFotos"></div>
@@ -55,12 +66,11 @@
 
     <script>
         const BASE_URL = 'https://foto-da-minha-vida.onrender.com';
+        let dadosGlobais = null;
 
-        // AO CARREGAR: Verifica segurança com o servidor
         window.onload = async () => {
             const token = localStorage.getItem('auth_token');
             if (!token) return;
-
             try {
                 const res = await fetch(`${BASE_URL}/verificar-sessao`, {
                     method: 'POST',
@@ -68,28 +78,16 @@
                     body: JSON.stringify({ token })
                 });
                 const dados = await res.json();
-
-                if (res.ok) {
-                    renderizarPagina(dados.dados);
-                } else {
-                    logout(); // Token inválido no servidor
-                }
-            } catch (e) {
-                console.log("Servidor offline ou erro de rede.");
-            }
+                if (res.ok) renderizarPagina(dados.dados);
+                else logout();
+            } catch (e) { console.log("Erro de rede."); }
         };
-
-        // LOGIN COM ENTER
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && document.getElementById('telaLogin').style.display !== 'none') tentarLogin();
-        });
 
         async function tentarLogin() {
             const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
             const btn = document.getElementById('btnEntrar');
             const erro = document.getElementById('msgErro');
-
             btn.disabled = true;
             btn.innerText = "VALIDANDO...";
 
@@ -100,7 +98,6 @@
                     body: JSON.stringify({ usuario, senha })
                 });
                 const dados = await res.json();
-
                 if (res.ok) {
                     localStorage.setItem('auth_token', dados.token);
                     renderizarPagina(dados.dados);
@@ -110,30 +107,40 @@
                     btn.innerText = "ENTRAR";
                 }
             } catch (e) {
-                erro.innerText = "Erro ao conectar com servidor.";
+                erro.innerText = "Erro ao conectar.";
                 btn.disabled = false;
-                btn.innerText = "TENTAR NOVAMENTE";
             }
         }
 
         function renderizarPagina(dados) {
+            dadosGlobais = dados;
             document.getElementById('telaLogin').style.display = 'none';
             document.getElementById('areaPrivada').style.display = 'flex';
 
-            // Pastas
             const containerPastas = document.getElementById('listaPastas');
-            containerPastas.innerHTML = '<small style="color: grey; padding-left: 10px;">PASTAS</small>';
+            containerPastas.innerHTML = '<small style="color: grey; padding-left: 10px; margin-top: 10px; display:block;">PASTAS</small>';
+            
             dados.pastas.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'nav-item';
                 div.innerText = "📁 " + p;
+                div.onclick = () => filtrarFotos(p);
                 containerPastas.appendChild(div);
             });
 
-            // Fotos
+            filtrarFotos(null);
+        }
+
+        function filtrarFotos(pastaNome) {
             const containerFotos = document.getElementById('listaFotos');
             containerFotos.innerHTML = "";
-            dados.fotos.forEach((f, index) => {
+            
+            // Filtra as fotos se uma pasta for selecionada
+            const fotosParaExibir = pastaNome 
+                ? dadosGlobais.fotos.filter(f => f.pasta === pastaNome)
+                : dadosGlobais.fotos;
+
+            fotosParaExibir.forEach((f, index) => {
                 if(index === 0) mudarDestaque(f.url, f.titulo, f.cor);
                 const item = document.createElement('div');
                 item.className = 'item-lista';
@@ -149,15 +156,14 @@
             document.documentElement.style.setProperty('--gradiente', cor);
         }
 
+        function abrirZoom(url) {
+            if(!url) return;
+            const modal = document.getElementById('modalZoom');
+            document.getElementById('imgExpandida').src = url;
+            modal.style.display = 'flex';
+        }
+
         async function logout() {
-            const token = localStorage.getItem('auth_token');
-            if (token) {
-                await fetch(`${BASE_URL}/logout`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
-                });
-            }
             localStorage.clear();
             location.reload();
         }
