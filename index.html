@@ -3,141 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Privada - Login</title>
+    <title>Galeria Interativa Premium</title>
     <style>
+        :root {
+            --cor-fundo: #121212;
+            --gradiente-topo: #282828;
+            --verde-spotify: #1DB954;
+        }
+
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            background: #1a1a1a; 
+            background: var(--cor-fundo); 
             color: white; 
             margin: 0; 
             display: flex; 
             flex-direction: column;
             align-items: center; 
             justify-content: center;
-            min-height: 100vh; 
+            min-height: 100vh;
+            transition: background 0.8s ease;
+            overflow-x: hidden;
         }
 
+        /* ANIMAÇÃO DE ENTRADA */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TELA DE LOGIN */
         .login-card { 
-            background: #2a2a2a; 
+            background: #181818; 
             padding: 40px; 
-            border-radius: 10px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            border-radius: 8px; 
             width: 300px; 
-            text-align: center;
+            text-align: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
         }
-        input { 
-            width: 100%; padding: 10px; margin: 10px 0; 
-            border-radius: 5px; border: none; box-sizing: border-box; 
-            background: #333; color: white;
-        }
-        button { 
-            width: 100%; padding: 12px; background: #007bff; 
-            border: none; color: white; font-weight: bold; 
-            border-radius: 5px; cursor: pointer; 
-        }
-        button:disabled { background: #555; cursor: not-allowed; }
-        button:hover:not(:disabled) { background: #0056b3; }
-        
-        #mensagem { margin-top: 15px; font-size: 0.9em; min-height: 1.2em; }
 
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border-radius: 4px; 
+            border: 1px solid transparent; 
+            background: #333; 
+            color: white; 
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        input:focus { border-color: var(--verde-spotify); }
+
+        button.btn-principal { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--verde-spotify); 
+            border: none; 
+            color: black;
+            font-weight: bold; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        button.btn-principal:hover { transform: scale(1.03); }
+        button.btn-principal:disabled { background: #555; cursor: not-allowed; }
+
+        /* ÁREA PRIVADA */
         #areaPrivada { 
             display: none; 
             width: 100%; 
-            max-width: 1200px; 
-            padding: 20px;
+            max-width: 600px; 
+            padding: 20px; 
+            box-sizing: border-box;
         }
-        .galeria {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+
+        .header-nav {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px;
         }
-        .foto-card {
-            background: #2a2a2a;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: transform 0.3s;
+
+        /* DESTAQUE DINÂMICO */
+        .secao-destaque {
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 40px 20px;
+            background: linear-gradient(to bottom, var(--gradiente-topo), var(--cor-fundo));
+            border-radius: 15px; 
+            transition: all 0.8s ease;
         }
-        .foto-card:hover { transform: scale(1.03); }
-        .foto-card img { width: 100%; height: 200px; object-fit: cover; }
-        .legenda { padding: 10px; text-align: center; color: #bbb; }
-        
-        .btn-sair { background: #dc3545; width: 100px; margin-bottom: 20px; }
+
+        #fotoPrincipal { 
+            width: 100%; 
+            max-width: 300px; 
+            aspect-ratio: 1/1; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
+            transition: transform 0.3s ease;
+        }
+
+        /* LISTA ESTILO SPOTIFY */
+        .lista-vertical { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+
+        .item-lista { 
+            display: flex; 
+            align-items: center; 
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+
+        .item-lista:hover { 
+            background: rgba(255, 255, 255, 0.12); 
+            transform: translateX(8px);
+        }
+
+        .item-lista img { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 4px; 
+            object-fit: cover; 
+            margin-right: 15px; 
+        }
+
+        .info-texto b { display: block; font-size: 16px; margin-bottom: 4px; }
+        .info-texto small { color: #b3b3b3; font-size: 13px; }
+
+        .btn-sair {
+            background: transparent;
+            color: white;
+            border: 1px solid #555;
+            padding: 6px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-sair:hover { border-color: white; }
+
+        #mensagem { margin-top: 15px; font-size: 13px; min-height: 18px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="telaLogin" class="login-card">
-        <h2>Área Restrita</h2>
-        <input type="text" id="usuario" placeholder="Usuário">
-        <input type="password" id="senha" placeholder="Senha">
-        <button id="btnEntrar" onclick="tentarLogin()">Entrar</button>
+    <div id="telaLogin" class="login-card fade-in">
+        <h2 style="margin-top: 0;">Entrar na Galeria</h2>
+        <input type="text" id="usuario" placeholder="Usuário" onkeypress="verificarEnter(event)">
+        <input type="password" id="senha" placeholder="Senha" onkeypress="verificarEnter(event)">
+        <button id="btnEntrar" class="btn-principal" onclick="tentarLogin()">ENTRAR</button>
         <div id="mensagem"></div>
     </div>
 
-    <div id="areaPrivada">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>Sua Galeria 📸</h1>
-            <button class="btn-sair" onclick="logout()">Sair</button>
+    <div id="areaPrivada" class="fade-in">
+        <div class="header-nav">
+            <span style="font-weight: bold; letter-spacing: 2px; font-size: 12px; color: #b3b3b3;">SUA PLAYLIST</span>
+            <button class="btn-sair" onclick="logout()">SAIR</button>
         </div>
 
-        <div class="galeria">
-            <div class="foto-card"><img src="https://picsum.photos/id/1011/400/300" alt="Foto 1"><div class="legenda">Viagem 01</div></div>
-            <div class="foto-card"><img src="https://picsum.photos/id/1015/400/300" alt="Foto 2"><div class="legenda">Natureza</div></div>
-            <div class="foto-card"><img src="https://picsum.photos/id/1019/400/300" alt="Foto 3"><div class="legenda">Cidade</div></div>
-            <div class="foto-card"><img src="https://picsum.photos/id/1025/400/300" alt="Foto 4"><div class="legenda">Aventura</div></div>
+        <div class="secao-destaque" id="containerDestaque">
+            <img src="https://picsum.photos/id/1011/600/600" id="fotoPrincipal">
+            <h2 id="tituloPrincipal" style="margin-top:25px; font-size: 24px;">Selecione uma foto</h2>
+        </div>
+
+        <h3 style="margin-left: 5px; margin-bottom: 15px;">Lembranças</h3>
+
+        <div class="lista-vertical">
+            <div class="item-lista" onclick="mudarDestaque(this, '#4a306d')">
+                <img src="https://picsum.photos/id/1015/200/200">
+                <div class="info-texto">
+                    <b>Montanhas</b>
+                    <small>Aventura de Verão 2024</small>
+                </div>
+            </div>
+
+            <div class="item-lista" onclick="mudarDestaque(this, '#1e3a5f')">
+                <img src="https://picsum.photos/id/1019/200/200">
+                <div class="info-texto">
+                    <b>Cidade Luz</b>
+                    <small>Passeio Noturno</small>
+                </div>
+            </div>
+
+            <div class="item-lista" onclick="mudarDestaque(this, '#5f1e1e')">
+                <img src="https://picsum.photos/id/1025/200/200">
+                <div class="info-texto">
+                    <b>Acampamento</b>
+                    <small>Noite sob as estrelas</small>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // --- 1. CONTROLE DE SESSÃO (LOCALSTORAGE) ---
+        window.onload = function() {
+            if (localStorage.getItem('galeria_logada') === 'true') {
+                mostrarGaleria();
+            }
+        };
+
+        // --- 2. LOGIN COM ENTER ---
+        function verificarEnter(event) {
+            if (event.key === "Enter") {
+                tentarLogin();
+            }
+        }
+
+        // --- 3. FUNÇÃO DE LOGIN ---
         async function tentarLogin() {
             const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
-            const mensagem = document.getElementById('mensagem');
             const btn = document.getElementById('btnEntrar');
-            const telaLogin = document.getElementById('telaLogin');
-            const areaPrivada = document.getElementById('areaPrivada');
+            const msg = document.getElementById('mensagem');
 
-            // Estado de Carregamento
+            if (!usuario || !senha) {
+                msg.innerText = "Preencha todos os campos!";
+                msg.style.color = "#ffc107";
+                return;
+            }
+
+            btn.innerText = "CONECTANDO...";
             btn.disabled = true;
-            btn.innerText = "Conectando...";
-            mensagem.style.color = "#aaa";
-            mensagem.innerText = "Avisando o servidor, aguarde...";
 
             try {
-                // Link atualizado com /login
                 const resposta = await fetch('https://foto-da-minha-vida.onrender.com/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario, senha })
                 });
 
-                const dados = await resposta.json();
-
                 if (resposta.ok) {
-                    mensagem.style.color = "#28a745";
-                    mensagem.innerText = "Acesso permitido!";
-                    setTimeout(() => {
-                        telaLogin.style.display = "none"; 
-                        areaPrivada.style.display = "block"; 
-                        document.body.style.justifyContent = "flex-start"; 
-                    }, 800);
+                    localStorage.setItem('galeria_logada', 'true');
+                    mostrarGaleria();
                 } else {
-                    mensagem.style.color = "#dc3545";
-                    mensagem.innerText = dados.msg || "Erro no login";
+                    msg.innerText = "Usuário ou senha inválidos!";
+                    msg.style.color = "#dc3545";
                     btn.disabled = false;
-                    btn.innerText = "Entrar";
+                    btn.innerText = "ENTRAR";
                 }
-            } catch (erro) {
-                mensagem.style.color = "#ffc107";
-                mensagem.innerText = "O servidor está acordando... Tente clicar em entrar novamente em 15 segundos.";
+            } catch (e) {
+                msg.innerText = "Servidor offline. Tente em 20 segundos.";
+                msg.style.color = "#ffc107";
                 btn.disabled = false;
-                btn.innerText = "Tentar de novo";
-                console.error(erro);
+                btn.innerText = "TENTAR NOVAMENTE";
             }
         }
 
+        function mostrarGaleria() {
+            document.getElementById('telaLogin').style.display = "none";
+            document.getElementById('areaPrivada').style.display = "block";
+            document.body.style.justifyContent = "flex-start";
+            document.body.style.paddingTop = "20px";
+        }
+
         function logout() {
-            location.reload(); 
+            localStorage.removeItem('galeria_logada');
+            location.reload();
+        }
+
+        // --- 4. TROCA DINÂMICA DE FOTO E GRADIENTE ---
+        function mudarDestaque(elemento, corDestaque) {
+            const novaUrl = elemento.querySelector('img').src;
+            const novoTitulo = elemento.querySelector('b').innerText;
+            const fotoPrincipal = document.getElementById('fotoPrincipal');
+
+            // Troca a foto com um efeito de escala
+            fotoPrincipal.style.transform = "scale(0.95)";
+            setTimeout(() => {
+                fotoPrincipal.src = novaUrl;
+                document.getElementById('tituloPrincipal').innerText = novoTitulo;
+                fotoPrincipal.style.transform = "scale(1)";
+            }, 150);
+
+            // Troca o gradiente
+            document.documentElement.style.setProperty('--gradiente-topo', corDestaque);
         }
     </script>
 </body>
