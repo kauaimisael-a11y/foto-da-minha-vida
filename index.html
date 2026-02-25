@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Privada v3</title>
+    <title>Galeria Privada v3 - Imgur Only</title>
     <style>
         :root { --fundo: #000; --card: #121212; --verde: #1DB954; --texto-sec: #b3b3b3; --gradiente: #282828; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--fundo); color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -27,10 +27,9 @@
         #telaLogin { width: 100%; display: flex; justify-content: center; align-items: center; background: var(--fundo); position: absolute; z-index: 100; height: 100vh; }
         .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 300px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box; }
-        .btn-entrar { width: 100%; padding: 14px; background: var(--verde); border: none; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.2s; }
-        .btn-entrar:hover { transform: scale(1.05); background: #1ed760; }
+        .btn-entrar { width: 100%; padding: 14px; background: var(--verde); border: none; font-weight: bold; border-radius: 50px; cursor: pointer; }
 
-        /* Layout */
+        /* Layout Principal */
         #areaPrivada { display: none; width: 100%; flex-direction: row; }
         .sidebar { width: 240px; background: var(--fundo); display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #282828; }
         .nav-item { padding: 12px; color: var(--texto-sec); cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
@@ -43,7 +42,7 @@
         .lista-vertical { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 50px; }
         .item-lista { display: flex; align-items: center; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.03); }
         .item-lista:hover { background: rgba(255,255,255,0.1); }
-        .item-lista img { width: 55px; height: 55px; object-fit: cover; border-radius: 4px; margin-right: 15px; background: #333; }
+        .item-lista img { width: 55px; height: 55px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
     </style>
 </head>
 <body>
@@ -54,7 +53,7 @@
 
     <div id="telaLogin">
         <div class="login-card">
-            <h2 style="margin-bottom: 20px;">Área Privada</h2>
+            <h2>Área Privada</h2>
             <input type="text" id="usuario" placeholder="Usuário">
             <input type="password" id="senha" placeholder="Senha">
             <button class="btn-entrar" onclick="tentarLogin()">ENTRAR</button>
@@ -78,7 +77,7 @@
 
     <script>
         const bancoDeDados = {
-            pastas: ["Viagens", "Festas", "Momentos"],
+            pastas: ["Viagens", "Momentos"],
             fotos: [
                 { link: "https://i.imgur.com/vUDSOLe.jpg", titulo: "Praia com Sol", desc: "Verão", pasta: "Viagens", cor: "#1a4a5e" },
                 { link: "https://i.imgur.com/RcDCOsV.jpg", titulo: "Novo Momento", desc: "Registro", pasta: "Momentos", cor: "#2e5e1a" },
@@ -93,7 +92,6 @@
         };
 
         function tentarLogin() {
-            // Oculta login e mostra galeria
             document.getElementById('telaLogin').style.display = 'none';
             document.getElementById('areaPrivada').style.display = 'flex';
             montarInterface();
@@ -101,7 +99,7 @@
 
         function montarInterface() {
             const containerPastas = document.getElementById('listaPastas');
-            containerPastas.innerHTML = '<small style="color:grey; padding-left:10px; margin-top:20px; display:block;">PASTAS</small>';
+            containerPastas.innerHTML = '<small style="color:grey; padding-left:10px; margin-top:15px; display:block;">PASTAS</small>';
             
             bancoDeDados.pastas.forEach(p => {
                 const item = document.createElement('div');
@@ -130,23 +128,21 @@
                     <img src="${f.link}" onerror="this.src='https://via.placeholder.com/55?text=Erro'">
                     <div>
                         <b>${f.titulo}</b><br>
-                        <small style="color:var(--texto-sec)">${f.desc}</small>
+                        <small style="color:grey">${f.desc}</small>
                     </div>`;
                 container.appendChild(div);
             });
         }
 
         function mudarDestaque(url, titulo, cor) {
-            const imgP = document.getElementById('fotoPrincipal');
-            imgP.src = url;
+            document.getElementById('fotoPrincipal').src = url;
             document.getElementById('tituloPrincipal').innerText = titulo;
             document.documentElement.style.setProperty('--gradiente', cor);
         }
 
         function abrirZoom(url) {
             const modal = document.getElementById('modalZoom');
-            const imgExp = document.getElementById('imgExpandida');
-            imgExp.src = url;
+            document.getElementById('imgExpandida').src = url;
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('visivel'), 10);
         }
