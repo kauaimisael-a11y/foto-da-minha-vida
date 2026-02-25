@@ -8,7 +8,7 @@
         :root { --fundo: #000; --card: #121212; --verde: #1DB954; --texto-sec: #b3b3b3; --gradiente: #282828; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--fundo); color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Modal de Zoom (Lightbox) */
+        /* Modal de Zoom */
         #modalZoom { 
             display: none; position: fixed; z-index: 2000; top: 0; left: 0; 
             width: 100%; height: 100%; background: rgba(0,0,0,0.9); 
@@ -74,89 +74,37 @@
         </div>
     </div>
 
-       <script>
-    // --- BANCO DE DADOS CORRIGIDO ---
-    const bancoDeDados = {
-        pastas: ["Viagens", "Festas", "Momentos"],
-        fotos: [
-            { 
-                linkDrive: "COLE_O_LINK_DA_PRAIA_AQUI", // Coloque o link da praia aqui
-                titulo: "Praia com Sol", 
-                desc: "Verão 2024", 
-                pasta: "Viagens", 
-                cor: "#1a4a5e" 
-            },
-            { 
-                linkDrive: "https://drive.google.com/file/d/1f4hSL4zMYmVqp5wqVW-b-tvtHf7p9K90/view?usp=drive_link", 
-                titulo: "Aniversário 2025", 
-                desc: "Festas e Comemorações", 
-                pasta: "Festas", 
-                cor: "#5e1a1a" 
+    <script>
+        const bancoDeDados = {
+            pastas: ["Viagens", "Festas", "Momentos"],
+            fotos: [
+                { 
+                    linkDrive: "https://drive.google.com/file/d/1f4hSL4zMYmVqp5wqVW-b-tvtHf7p9K90/view?usp=drive_link", 
+                    titulo: "Aniversário 2025", 
+                    desc: "Festa de comemoração", 
+                    pasta: "Festas", 
+                    cor: "#5e1a1a" 
+                }
+            ]
+        };
+
+        function converterLinkDrive(link) {
+            const idMatch = link.match(/[-\w]{25,}/);
+            if (idMatch) {
+                return `https://drive.google.com/uc?export=view&id=${idMatch[0]}`;
             }
-        ]
-    };
+            return link;
+        }
 
-    // Função para gerar o link direto da imagem
-    function converterLinkDrive(link) {
-        if (!link || link.includes('COLE_O_LINK')) return "https://via.placeholder.com/400?text=Sem+Imagem";
-        const id = link.match(/[-\w]{25,}/);
-        return id ? `https://drive.google.com/uc?export=view&id=${id[0]}` : link;
-    }
+        function tentarLogin() {
+            // Remove o login e mostra a galeria
+            document.getElementById('telaLogin').style.display = 'none';
+            document.getElementById('areaPrivada').style.display = 'flex';
+            montarInterface();
+        }
 
-    function tentarLogin() {
-        document.getElementById('telaLogin').style.display = 'none';
-        document.getElementById('areaPrivada').style.display = 'flex';
-        montarInterface();
-    }
-
-    function montarInterface() {
-        const containerPastas = document.getElementById('listaPastas');
-        containerPastas.innerHTML = '<small style="color:grey; padding-left:10px;">PASTAS</small>';
-        
-        bancoDeDados.pastas.forEach(p => {
-            const item = document.createElement('div');
-            item.className = 'nav-item';
-            item.innerText = "📁 " + p;
-            item.onclick = () => filtrarFotos(p);
-            containerPastas.appendChild(item);
-        });
-        filtrarFotos('Todas');
-    }
-
-    function filtrarFotos(pasta) {
-        const container = document.getElementById('listaFotos');
-        container.innerHTML = "";
-        
-        const lista = (pasta === 'Todas') ? bancoDeDados.fotos : bancoDeDados.fotos.filter(f => f.pasta === pasta);
-
-        lista.forEach((f, i) => {
-            const urlReal = converterLinkDrive(f.linkDrive);
-            if(i === 0) mudarDestaque(urlReal, f.titulo, f.cor);
-
-            const div = document.createElement('div');
-            div.className = 'item-lista';
-            div.onclick = () => mudarDestaque(urlReal, f.titulo, f.cor);
-            div.innerHTML = `<img src="${urlReal}"><div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function mudarDestaque(url, titulo, cor) {
-        document.getElementById('fotoPrincipal').src = url;
-        document.getElementById('tituloPrincipal').innerText = titulo;
-        document.documentElement.style.setProperty('--gradiente', cor);
-    }
-
-    function abrirZoom(url) {
-        const modal = document.getElementById('modalZoom');
-        document.getElementById('imgExpandida').src = url;
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('visivel'), 10);
-    }
-
-    function fecharZoom() {
-        const modal = document.getElementById('modalZoom');
-        modal.classList.remove('visivel');
-        setTimeout(() => modal.style.display = 'none', 300);
-    }
-</script>
+        function montarInterface() {
+            const containerPastas = document.getElementById('listaPastas');
+            containerPastas.innerHTML = '<small style="color:grey; padding-left:10px;">PASTAS</small>';
+            
+            bancoDeDados.pastas.
