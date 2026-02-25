@@ -3,45 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Segura v2 - Especial</title>
+    <title>Galeria Privada v3</title>
     <style>
         :root { --fundo: #000; --card: #121212; --verde: #1DB954; --texto-sec: #b3b3b3; --gradiente: #282828; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--fundo); color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Modal de Zoom Estilo Lightbox */
+
+        /* Modal de Zoom (Lightbox) */
         #modalZoom { 
             display: none; position: fixed; z-index: 2000; top: 0; left: 0; 
-            width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
+            width: 100%; height: 100%; background: rgba(0,0,0,0.9); 
             justify-content: center; align-items: center; cursor: zoom-out;
             opacity: 0; transition: opacity 0.3s ease;
         }
         #modalZoom.visivel { display: flex; opacity: 1; }
         #imgExpandida { 
             max-width: 90%; max-height: 90%; border-radius: 8px; 
-            transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transform: scale(0.7); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
         #modalZoom.visivel #imgExpandida { transform: scale(1); }
 
-        /* Estrutura Principal */
+        /* Login */
         #telaLogin { width: 100%; display: flex; justify-content: center; align-items: center; background: var(--fundo); position: absolute; z-index: 100; height: 100vh; }
         .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 300px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box; }
         .btn-entrar { width: 100%; padding: 14px; background: var(--verde); border: none; font-weight: bold; border-radius: 50px; cursor: pointer; }
-        
+
+        /* Layout */
         #areaPrivada { display: none; width: 100%; flex-direction: row; }
         .sidebar { width: 240px; background: var(--fundo); display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #282828; }
         .nav-item { padding: 12px; color: var(--texto-sec); cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover, .nav-item.ativa { color: white; background: #1a1a1a; }
+        .nav-item:hover { color: white; background: #1a1a1a; }
         
         .main-content { flex: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, var(--gradiente), var(--fundo) 60%); }
         .destaque { text-align: center; padding: 40px 0; }
-        #fotoPrincipal { width: 350px; height: 350px; object-fit: cover; border-radius: 8px; box-shadow: 0 10px 50px rgba(0,0,0,0.8); cursor: pointer; transition: 0.3s; }
-        #fotoPrincipal:hover { transform: scale(1.03); filter: brightness(1.1); }
+        #fotoPrincipal { width: 320px; height: 320px; object-fit: cover; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); cursor: pointer; }
         
-        .lista-vertical { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 50px; }
-        .item-lista { display: flex; align-items: center; padding: 8px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .lista-vertical { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+        .item-lista { display: flex; align-items: center; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.03); }
         .item-lista:hover { background: rgba(255,255,255,0.1); }
-        .item-lista img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
+        .item-lista img { width: 55px; height: 55px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
     </style>
 </head>
 <body>
@@ -52,7 +52,7 @@
 
     <div id="telaLogin">
         <div class="login-card">
-            <h2>Galeria Privada</h2>
+            <h2>Área Privada</h2>
             <input type="text" id="usuario" placeholder="Usuário">
             <input type="password" id="senha" placeholder="Senha">
             <button class="btn-entrar" onclick="tentarLogin()">ENTRAR</button>
@@ -61,75 +61,84 @@
 
     <div id="areaPrivada">
         <div class="sidebar">
-            <div class="nav-item" onclick="filtrarFotos('Todas')">🏠 Todas as Fotos</div>
+            <div class="nav-item" onclick="filtrarFotos('Todas')">🏠 Início</div>
             <div id="listaPastas"></div>
-            <div class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff5555;">🚪 Sair</div>
+            <div class="nav-item" onclick="location.reload()" style="margin-top: auto; color: #ff5555;">🚪 Sair</div>
         </div>
         <div class="main-content">
             <div class="destaque">
                 <img src="" id="fotoPrincipal" onclick="abrirZoom(this.src)">
-                <h1 id="tituloPrincipal">Minhas Memórias</h1>
+                <h1 id="tituloPrincipal">Minha Galeria</h1>
             </div>
             <div class="lista-vertical" id="listaFotos"></div>
         </div>
     </div>
 
     <script>
-        // Simulando os dados com as imagens que você enviou
-        const dadosLocais = {
-            pastas: ["Praia", "Aniversário", "Rolê"],
+        // --- CONFIGURAÇÃO DAS SUAS FOTOS ---
+        // Aqui você pode colar o link direto do Google Drive (lembre-se de deixar a foto pública no Drive)
+        const bancoDeDados = {
+            pastas: ["Viagens", "Festas", "Momentos"],
             fotos: [
-                { url: "https://api.screenshotmachine.com/?key=ca744d&url=https://files.catbox.moe/0v9j6s.jpeg", titulo: "Sereia na Areia", desc: "Momentos na praia", pasta: "Praia", cor: "#1a4a5e" },
-                { url: "https://files.catbox.moe/7h9z9a.jpeg", titulo: "Aniversário 19 Anos", desc: "Comemorando mais um ano", pasta: "Aniversário", cor: "#5e1a1a" },
-                { url: "https://files.catbox.moe/u3s0v6.jpeg", titulo: "Nós Dois", desc: "Praia e sol", pasta: "Praia", cor: "#2a5e1a" },
-                { url: "https://files.catbox.moe/k8r2y1.jpeg", titulo: "Pôr do sol", desc: "Dunas maravilhosas", pasta: "Praia", cor: "#5e4a1a" },
-                { url: "https://files.catbox.moe/f0n3w9.jpeg", titulo: "Noite Especial", desc: "Jantar e mimos", pasta: "Rolê", cor: "#2a1a5e" }
+                { 
+                    linkDrive: "COLE_O_LINK_DO_DRIVE_AQUI", 
+                    titulo: "Praia com Sol", 
+                    desc: "Verão 2024", 
+                    pasta: "Viagens", 
+                    cor: "#1a4a5e" 
+                },
+                { 
+                    linkDrive: "OUTRO_LINK_AQUI", 
+                    titulo: "Aniversário", 
+                    desc: "Bolo e Amigos", 
+                    pasta: "Festas", 
+                    cor: "#5e1a1a" 
+                }
             ]
         };
 
-        let dadosAtuais = dadosLocais;
-
-        function tentarLogin() {
-            // Simplificado para teste, você pode manter sua lógica de fetch aqui
-            document.getElementById('telaLogin').style.display = 'none';
-            document.getElementById('areaPrivada').style.display = 'flex';
-            renderizarInterface();
+        // Função mágica que trasforma link do Drive em imagem real
+        function converterLinkDrive(link) {
+            if (!link || link.includes('COLE_O_LINK')) return "https://via.placeholder.com/400?text=Sem+Imagem";
+            const id = link.match(/[-\w]{25,}/);
+            return id ? `https://lh3.googleusercontent.com/u/0/d/${id}` : link;
         }
 
-        function renderizarInterface() {
-            const containerPastas = document.getElementById('listaPastas');
-            containerPastas.innerHTML = '<small style="color: grey; padding-left: 10px; margin-top: 15px; display:block;">COLEÇÕES</small>';
-            
-            dadosAtuais.pastas.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'nav-item';
-                div.innerText = "📁 " + p;
-                div.onclick = () => filtrarFotos(p);
-                containerPastas.appendChild(div);
-            });
+        function tentarLogin() {
+            document.getElementById('telaLogin').style.display = 'none';
+            document.getElementById('areaPrivada').style.display = 'flex';
+            montarInterface();
+        }
 
+        function montarInterface() {
+            const containerPastas = document.getElementById('listaPastas');
+            containerPastas.innerHTML = '<small style="color:grey; padding-left:10px;">PASTAS</small>';
+            
+            bancoDeDados.pastas.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'nav-item';
+                item.innerText = "📁 " + p;
+                item.onclick = () => filtrarFotos(p);
+                containerPastas.appendChild(item);
+            });
             filtrarFotos('Todas');
         }
 
         function filtrarFotos(pasta) {
-            const containerFotos = document.getElementById('listaFotos');
-            containerFotos.innerHTML = "";
+            const container = document.getElementById('listaFotos');
+            container.innerHTML = "";
             
-            const filtradas = (pasta === 'Todas') 
-                ? dadosAtuais.fotos 
-                : dadosAtuais.fotos.filter(f => f.pasta === pasta);
+            const lista = (pasta === 'Todas') ? bancoDeDados.fotos : bancoDeDados.fotos.filter(f => f.pasta === pasta);
 
-            filtradas.forEach((f, i) => {
-                if(i === 0) mudarDestaque(f.url, f.titulo, f.cor);
-                
-                const item = document.createElement('div');
-                item.className = 'item-lista';
-                item.onclick = () => mudarDestaque(f.url, f.titulo, f.cor);
-                item.innerHTML = `
-                    <img src="${f.url}">
-                    <div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>
-                `;
-                containerFotos.appendChild(item);
+            lista.forEach((f, i) => {
+                const urlReal = converterLinkDrive(f.linkDrive);
+                if(i === 0) mudarDestaque(urlReal, f.titulo, f.cor);
+
+                const div = document.createElement('div');
+                div.className = 'item-lista';
+                div.onclick = () => mudarDestaque(urlReal, f.titulo, f.cor);
+                div.innerHTML = `<img src="${urlReal}"><div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>`;
+                container.appendChild(div);
             });
         }
 
@@ -151,9 +160,6 @@
             modal.classList.remove('visivel');
             setTimeout(() => modal.style.display = 'none', 300);
         }
-
-        function logout() { location.reload(); }
     </script>
 </body>
 </html>
-
