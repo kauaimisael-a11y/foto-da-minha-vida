@@ -3,296 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Interativa Premium</title>
+    <title>Galeria Pro - Spotify Style</title>
     <style>
-        :root {
-            --cor-fundo: #121212;
-            --gradiente-topo: #282828;
-            --verde-spotify: #1DB954;
-        }
+        :root { --fundo: #000; --card: #121212; --verde: #1DB954; --texto-sec: #b3b3b3; --gradiente: #282828; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--fundo); color: white; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--cor-fundo); 
-            color: white; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            justify-content: center;
-            min-height: 100vh;
-            transition: background 0.8s ease;
-            overflow-x: hidden;
-        }
+        /* LOGIN */
+        #telaLogin { width: 100%; display: flex; justify-content: center; align-items: center; background: var(--fundo); position: absolute; z-index: 100; height: 100vh; }
+        .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 300px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box; }
+        .btn-entrar { width: 100%; padding: 14px; background: var(--verde); border: none; font-weight: bold; border-radius: 50px; cursor: pointer; }
 
-        /* ANIMAÇÃO DE ENTRADA */
-        .fade-in {
-            animation: fadeIn 0.8s ease-in;
-        }
+        /* LAYOUT PRINCIPAL */
+        #areaPrivada { display: none; width: 100%; display: flex; flex-direction: row; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* BARRA LATERAL (SIDEBAR) */
+        .sidebar { width: 240px; background: var(--fundo); display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #282828; }
+        .nav-item { padding: 12px; color: var(--texto-sec); cursor: pointer; border-radius: 5px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .nav-item:hover { color: white; background: #1a1a1a; }
+        .folders { margin-top: 20px; border-top: 1px solid #282828; padding-top: 20px; }
 
-        /* TELA DE LOGIN */
-        .login-card { 
-            background: #181818; 
-            padding: 40px; 
-            border-radius: 8px; 
-            width: 300px; 
-            text-align: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-        }
+        /* CONTEÚDO PRINCIPAL */
+        .main-content { flex: 1; overflow-y: auto; padding: 20px; background: linear-gradient(to bottom, var(--gradiente), var(--fundo) 40%); }
+        
+        .destaque { text-align: center; padding: 40px 0; }
+        #fotoPrincipal { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
 
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 8px 0; 
-            border-radius: 4px; 
-            border: 1px solid transparent; 
-            background: #333; 
-            color: white; 
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        input:focus { border-color: var(--verde-spotify); }
-
-        button.btn-principal { 
-            width: 100%; 
-            padding: 14px; 
-            background: var(--verde-spotify); 
-            border: none; 
-            color: black;
-            font-weight: bold; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            margin-top: 10px;
-            transition: transform 0.2s;
-        }
-
-        button.btn-principal:hover { transform: scale(1.03); }
-        button.btn-principal:disabled { background: #555; cursor: not-allowed; }
-
-        /* ÁREA PRIVADA */
-        #areaPrivada { 
-            display: none; 
-            width: 100%; 
-            max-width: 600px; 
-            padding: 20px; 
-            box-sizing: border-box;
-        }
-
-        .header-nav {
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px;
-        }
-
-        /* DESTAQUE DINÂMICO */
-        .secao-destaque {
-            text-align: center; 
-            margin-bottom: 30px; 
-            padding: 40px 20px;
-            background: linear-gradient(to bottom, var(--gradiente-topo), var(--cor-fundo));
-            border-radius: 15px; 
-            transition: all 0.8s ease;
-        }
-
-        #fotoPrincipal { 
-            width: 100%; 
-            max-width: 300px; 
-            aspect-ratio: 1/1; 
-            object-fit: cover; 
-            border-radius: 8px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
-            transition: transform 0.3s ease;
-        }
-
-        /* LISTA ESTILO SPOTIFY */
-        .lista-vertical { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-        }
-
-        .item-lista { 
-            display: flex; 
-            align-items: center; 
-            background: rgba(255, 255, 255, 0.05); 
-            padding: 12px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-        }
-
-        .item-lista:hover { 
-            background: rgba(255, 255, 255, 0.12); 
-            transform: translateX(8px);
-        }
-
-        .item-lista img { 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 4px; 
-            object-fit: cover; 
-            margin-right: 15px; 
-        }
-
-        .info-texto b { display: block; font-size: 16px; margin-bottom: 4px; }
-        .info-texto small { color: #b3b3b3; font-size: 13px; }
-
-        .btn-sair {
-            background: transparent;
-            color: white;
-            border: 1px solid #555;
-            padding: 6px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .btn-sair:hover { border-color: white; }
-
-        #mensagem { margin-top: 15px; font-size: 13px; min-height: 18px; text-align: center; }
+        .lista-vertical { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+        .item-lista { display: flex; align-items: center; padding: 8px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .item-lista:hover { background: rgba(255,255,255,0.1); }
+        .item-lista img { width: 50px; height: 50px; border-radius: 4px; margin-right: 15px; }
+        
+        #mensagem { color: #ffc107; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="telaLogin" class="login-card fade-in">
-        <h2 style="margin-top: 0;">Entrar na Galeria</h2>
-        <input type="text" id="usuario" placeholder="Usuário" onkeypress="verificarEnter(event)">
-        <input type="password" id="senha" placeholder="Senha" onkeypress="verificarEnter(event)">
-        <button id="btnEntrar" class="btn-principal" onclick="tentarLogin()">ENTRAR</button>
-        <div id="mensagem"></div>
+    <div id="telaLogin">
+        <div class="login-card">
+            <h2>Fazer Login</h2>
+            <input type="text" id="usuario" placeholder="Usuário">
+            <input type="password" id="senha" placeholder="Senha">
+            <button class="btn-entrar" id="btnEntrar" onclick="tentarLogin()">ENTRAR</button>
+            <div id="mensagem"></div>
+        </div>
     </div>
 
-    <div id="areaPrivada" class="fade-in">
-        <div class="header-nav">
-            <span style="font-weight: bold; letter-spacing: 2px; font-size: 12px; color: #b3b3b3;">SUA PLAYLIST</span>
-            <button class="btn-sair" onclick="logout()">SAIR</button>
+    <div id="areaPrivada">
+        <div class="sidebar">
+            <div class="nav-item">🏠 Início</div>
+            <div class="nav-item">⚙️ Configurações</div>
+            <div class="folders" id="listaPastas">
+                <small style="color: grey; padding-left: 10px;">SUAS PASTAS</small>
+                </div>
+            <div class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff5555;">🚪 Sair</div>
         </div>
 
-        <div class="secao-destaque" id="containerDestaque">
-            <img src="https://picsum.photos/id/1011/600/600" id="fotoPrincipal">
-            <h2 id="tituloPrincipal" style="margin-top:25px; font-size: 24px;">Selecione uma foto</h2>
-        </div>
-
-        <h3 style="margin-left: 5px; margin-bottom: 15px;">Lembranças</h3>
-
-        <div class="lista-vertical">
-            <div class="item-lista" onclick="mudarDestaque(this, '#4a306d')">
-                <img src="https://picsum.photos/id/1015/200/200">
-                <div class="info-texto">
-                    <b>Montanhas</b>
-                    <small>Aventura de Verão 2024</small>
-                </div>
+        <div class="main-content">
+            <div class="destaque">
+                <img src="" id="fotoPrincipal">
+                <h1 id="tituloPrincipal">Carregando...</h1>
             </div>
 
-            <div class="item-lista" onclick="mudarDestaque(this, '#1e3a5f')">
-                <img src="https://picsum.photos/id/1019/200/200">
-                <div class="info-texto">
-                    <b>Cidade Luz</b>
-                    <small>Passeio Noturno</small>
+            <div class="lista-vertical" id="listaFotos">
                 </div>
-            </div>
-
-            <div class="item-lista" onclick="mudarDestaque(this, '#5f1e1e')">
-                <img src="https://picsum.photos/id/1025/200/200">
-                <div class="info-texto">
-                    <b>Acampamento</b>
-                    <small>Noite sob as estrelas</small>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. CONTROLE DE SESSÃO (LOCALSTORAGE) ---
-        window.onload = function() {
-            if (localStorage.getItem('galeria_logada') === 'true') {
-                mostrarGaleria();
-            }
+        // CONFIGURAÇÕES GLOBAIS
+        const API_URL = 'https://foto-da-minha-vida.onrender.com/login';
+
+        window.onload = () => {
+            const dadosSalvos = localStorage.getItem('dados_galeria');
+            if (dadosSalvos) renderizarPagina(JSON.parse(dadosSalvos));
         };
 
-        // --- 2. LOGIN COM ENTER ---
-        function verificarEnter(event) {
-            if (event.key === "Enter") {
-                tentarLogin();
-            }
-        }
+        // ENTER NO TECLADO
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.getElementById('telaLogin').style.display !== 'none') tentarLogin();
+        });
 
-        // --- 3. FUNÇÃO DE LOGIN ---
         async function tentarLogin() {
             const usuario = document.getElementById('usuario').value;
             const senha = document.getElementById('senha').value;
             const btn = document.getElementById('btnEntrar');
-            const msg = document.getElementById('mensagem');
-
-            if (!usuario || !senha) {
-                msg.innerText = "Preencha todos os campos!";
-                msg.style.color = "#ffc107";
-                return;
-            }
-
+            
             btn.innerText = "CONECTANDO...";
             btn.disabled = true;
 
             try {
-                const resposta = await fetch('https://foto-da-minha-vida.onrender.com/login', {
+                const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario, senha })
                 });
+                const dados = await res.json();
 
-                if (resposta.ok) {
-                    localStorage.setItem('galeria_logada', 'true');
-                    mostrarGaleria();
+                if (res.ok) {
+                    localStorage.setItem('dados_galeria', JSON.stringify(dados.dados));
+                    renderizarPagina(dados.dados);
                 } else {
-                    msg.innerText = "Usuário ou senha inválidos!";
-                    msg.style.color = "#dc3545";
+                    alert(dados.msg);
                     btn.disabled = false;
                     btn.innerText = "ENTRAR";
                 }
             } catch (e) {
-                msg.innerText = "Servidor offline. Tente em 20 segundos.";
-                msg.style.color = "#ffc107";
+                alert("Erro ao conectar com servidor.");
                 btn.disabled = false;
                 btn.innerText = "TENTAR NOVAMENTE";
             }
         }
 
-        function mostrarGaleria() {
-            document.getElementById('telaLogin').style.display = "none";
-            document.getElementById('areaPrivada').style.display = "block";
-            document.body.style.justifyContent = "flex-start";
-            document.body.style.paddingTop = "20px";
+        function renderizarPagina(dados) {
+            document.getElementById('telaLogin').style.display = 'none';
+            document.getElementById('areaPrivada').style.display = 'flex';
+
+            // Renderizar Pastas
+            const containerPastas = document.getElementById('listaPastas');
+            dados.pastas.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                div.innerText = "📁 " + p;
+                containerPastas.appendChild(div);
+            });
+
+            // Renderizar Fotos
+            const containerFotos = document.getElementById('listaFotos');
+            containerFotos.innerHTML = "";
+            dados.fotos.forEach((f, index) => {
+                if(index === 0) mudarDestaque(f.url, f.titulo, f.cor);
+                
+                const item = document.createElement('div');
+                item.className = 'item-lista';
+                item.onclick = () => mudarDestaque(f.url, f.titulo, f.cor);
+                item.innerHTML = `
+                    <img src="${f.url}">
+                    <div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>
+                `;
+                containerFotos.appendChild(item);
+            });
+        }
+
+        function mudarDestaque(url, titulo, cor) {
+            document.getElementById('fotoPrincipal').src = url;
+            document.getElementById('tituloPrincipal').innerText = titulo;
+            document.documentElement.style.setProperty('--gradiente', cor);
         }
 
         function logout() {
-            localStorage.removeItem('galeria_logada');
+            localStorage.clear();
             location.reload();
-        }
-
-        // --- 4. TROCA DINÂMICA DE FOTO E GRADIENTE ---
-        function mudarDestaque(elemento, corDestaque) {
-            const novaUrl = elemento.querySelector('img').src;
-            const novoTitulo = elemento.querySelector('b').innerText;
-            const fotoPrincipal = document.getElementById('fotoPrincipal');
-
-            // Troca a foto com um efeito de escala
-            fotoPrincipal.style.transform = "scale(0.95)";
-            setTimeout(() => {
-                fotoPrincipal.src = novaUrl;
-                document.getElementById('tituloPrincipal').innerText = novoTitulo;
-                fotoPrincipal.style.transform = "scale(1)";
-            }, 150);
-
-            // Troca o gradiente
-            document.documentElement.style.setProperty('--gradiente-topo', corDestaque);
         }
     </script>
 </body>
 </html>
+
