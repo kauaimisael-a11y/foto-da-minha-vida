@@ -21,7 +21,7 @@ const dadosGaleria = {
 app.post('/login', (req, res) => {
     const { usuario, senha } = req.body;
 
-    if (usuario === "admin" && senha === SENHA_MESTRE) {
+    if (usuario === "gissele" && senha === 1234) {
         return res.status(200).json({ 
             auth: true, 
             token: "tk_" + Math.random().toString(36).substr(2),
@@ -33,3 +33,4 @@ app.post('/login', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor seguro na porta ${PORT}`));
+
