@@ -107,4 +107,52 @@
             const containerPastas = document.getElementById('listaPastas');
             containerPastas.innerHTML = '<small style="color:grey; padding-left:10px;">PASTAS</small>';
             
-            bancoDeDados.pastas.
+            bancoDeDados.pastas.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'nav-item';
+                item.innerText = "📁 " + p;
+                item.onclick = () => filtrarFotos(p);
+                containerPastas.appendChild(item);
+            });
+            filtrarFotos('Todas');
+        }
+
+        function filtrarFotos(pasta) {
+            const container = document.getElementById('listaFotos');
+            container.innerHTML = "";
+            
+            const lista = (pasta === 'Todas') ? bancoDeDados.fotos : bancoDeDados.fotos.filter(f => f.pasta === pasta);
+
+            lista.forEach((f, i) => {
+                const urlReal = converterLinkDrive(f.linkDrive);
+                if(i === 0) mudarDestaque(urlReal, f.titulo, f.cor);
+
+                const div = document.createElement('div');
+                div.className = 'item-lista';
+                div.onclick = () => mudarDestaque(urlReal, f.titulo, f.cor);
+                div.innerHTML = `<img src="${urlReal}"><div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function mudarDestaque(url, titulo, cor) {
+            document.getElementById('fotoPrincipal').src = url;
+            document.getElementById('tituloPrincipal').innerText = titulo;
+            document.documentElement.style.setProperty('--gradiente', cor);
+        }
+
+        function abrirZoom(url) {
+            const modal = document.getElementById('modalZoom');
+            document.getElementById('imgExpandida').src = url;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('visivel'), 10);
+        }
+
+        function fecharZoom() {
+            const modal = document.getElementById('modalZoom');
+            modal.classList.remove('visivel');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+    </script>
+</body>
+</html>
