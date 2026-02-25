@@ -78,26 +78,20 @@
         const bancoDeDados = {
             pastas: ["Viagens", "Festas", "Momentos"],
             fotos: [
-                { 
-                    linkDrive: "https://drive.google.com/file/d/1f4hSL4zMYmVqp5wqVW-b-tvtHf7p9K90/view?usp=drive_link", 
-                    titulo: "Aniversário 2025", 
-                    desc: "Festa de comemoração", 
-                    pasta: "Festas", 
-                    cor: "#5e1a1a" 
-                }
+                { link: "https://i.imgur.com/vUDSOLe.jpeg", titulo: "Praia com Sol", desc: "Verão", pasta: "Viagens", cor: "#1a4a5e" },
+                { link: "https://drive.google.com/uc?export=view&id=1f4hSL4zMYmVqp5wqVW-b-tvtHf7p9K90", titulo: "Aniversário 2025", desc: "Festa", pasta: "Festas", cor: "#5e1a1a" },
+                { link: "https://i.imgur.com/RcDCOsV.jpg", titulo: "Novo Momento", desc: "Registro", pasta: "Momentos", cor: "#2e5e1a" },
+                { link: "https://i.imgur.com/9FUJotk.jpeg", titulo: "Noite Urbana", desc: "Cidade", pasta: "Momentos", cor: "#1a1a2e" },
+                { link: "https://i.imgur.com/eeFTPCY.jpeg", titulo: "Registro Especial", desc: "Momento", pasta: "Momentos", cor: "#333333" },
+                { link: "https://i.imgur.com/ldwEDOS.jpeg", titulo: "Mais um Registro", desc: "Galeria", pasta: "Momentos", cor: "#4a1a5e" },
+                { link: "https://i.imgur.com/T6PeLye.jpeg", titulo: "Nova Captura", desc: "Recentemente", pasta: "Momentos", cor: "#2e1a4a" },
+                { link: "https://i.imgur.com/TzItM6o.jpeg", titulo: "Última Adição", desc: "Carregada", pasta: "Momentos", cor: "#1a4a2e" },
+                { link: "https://i.imgur.com/itEWEiQ.jpeg", titulo: "Nova Imagem", desc: "Momento", pasta: "Momentos", cor: "#5e5e1a" },
+                { link: "https://i.imgur.com/807t5LP.jpeg", titulo: "Foto 10", desc: "Final", pasta: "Momentos", cor: "#1a3a5e" }
             ]
         };
 
-        function converterLinkDrive(link) {
-            const idMatch = link.match(/[-\w]{25,}/);
-            if (idMatch) {
-                return `https://drive.google.com/uc?export=view&id=${idMatch[0]}`;
-            }
-            return link;
-        }
-
         function tentarLogin() {
-            // Remove o login e mostra a galeria
             document.getElementById('telaLogin').style.display = 'none';
             document.getElementById('areaPrivada').style.display = 'flex';
             montarInterface();
@@ -120,17 +114,14 @@
         function filtrarFotos(pasta) {
             const container = document.getElementById('listaFotos');
             container.innerHTML = "";
-            
             const lista = (pasta === 'Todas') ? bancoDeDados.fotos : bancoDeDados.fotos.filter(f => f.pasta === pasta);
 
             lista.forEach((f, i) => {
-                const urlReal = converterLinkDrive(f.linkDrive);
-                if(i === 0) mudarDestaque(urlReal, f.titulo, f.cor);
-
+                if(i === 0) mudarDestaque(f.link, f.titulo, f.cor);
                 const div = document.createElement('div');
                 div.className = 'item-lista';
-                div.onclick = () => mudarDestaque(urlReal, f.titulo, f.cor);
-                div.innerHTML = `<img src="${urlReal}"><div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>`;
+                div.onclick = () => mudarDestaque(f.link, f.titulo, f.cor);
+                div.innerHTML = `<img src="${f.link}"><div><b>${f.titulo}</b><br><small style="color:grey">${f.desc}</small></div>`;
                 container.appendChild(div);
             });
         }
